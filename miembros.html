@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miembros | Comunidad Emprendedora</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .miembros-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        .miembros-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .miembro-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .miembro-card img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
+        .miembro-card h4 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+        .miembro-card p {
+            margin: 0.5rem 0;
+            color: #666;
+        }
+        .miembro-card .contacto {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .miembro-card .contacto:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <img src="logo.svg" alt="Logo CE" class="logo-navbar">
+                <span class="brand">Comunidad Emprendedora</span>
+            </div>
+            <div class="menu-toggle" id="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu">
+            <div class="menu-content">
+                <ul class="menu-links">
+                    <li><a href="index.html#hero">Inicio</a></li>
+                    <li><a href="index.html#about">Sobre Nosotros</a></li>
+                    <li><a href="index.html#beneficios">Beneficios</a></li>
+                    <li><a href="index.html#testimonios">Testimonios</a></li>
+                    <li><a href="index.html#servicios">Servicios</a></li>
+                    <li><a href="index.html#casos-exito">Casos de Éxito</a></li>
+                    <li><a href="index.html#faq">FAQ</a></li>
+                    <li><a href="miembros.html" class="active">Miembros</a></li>
+                    <li><a href="registro.html" class="btn-registro">Registro</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main>
+        <div class="miembros-container">
+            <h2>Miembros de la Comunidad</h2>
+            <div id="miembros-list" class="miembros-list">
+                <!-- Los miembros se cargarán dinámicamente -->
+            </div>
+        </div>
+    </main>
+    <script>
+        // Cargar miembros aprobados
+        document.addEventListener('DOMContentLoaded', () => {
+            const miembrosList = document.getElementById('miembros-list');
+            const approvedUsers = JSON.parse(localStorage.getItem('approvedUsers') || '[]');
+            
+            miembrosList.innerHTML = approvedUsers.map(user => `
+                <div class="miembro-card">
+                    <img src="${user.foto || 'default-avatar.png'}" alt="${user.nombre}">
+                    <h4>${user.nombre}</h4>
+                    <p>${user.objetivos}</p>
+                    <p><a href="mailto:${user.contacto}" class="contacto">${user.contacto}</a></p>
+                </div>
+            `).join('');
+        });
+    </script>
+</body>
+</html>
