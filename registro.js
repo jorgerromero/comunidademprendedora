@@ -33,24 +33,20 @@ document.getElementById('registro-form').addEventListener('submit', function(e) 
         return;
     }
 
-    // Crear objeto de usuario
-    const usuario = {
-        id: Date.now(),
-        nombre: nombre,
-        objetivos: objetivos,
-        info: info,
-        contacto: contacto,
-        foto: foto ? URL.createObjectURL(foto) : null,
-        estado: 'pendiente'
-    };
+    // Crear formulario de datos
+    const formData = new FormData();
+    formData.append('nombre', nombre);
+    formData.append('objetivos', objetivos);
+    formData.append('info', info);
+    formData.append('contacto', contacto);
+    if (foto) {
+        formData.append('foto', foto);
+    }
 
     // Enviar datos al servidor
     fetch('https://comunidademprendedora.es/api/register', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(usuario)
+        body: formData
     })
     .then(response => response.json())
     .then(data => {
@@ -61,6 +57,7 @@ document.getElementById('registro-form').addEventListener('submit', function(e) 
             fotoLabel.textContent = 'Añadir foto de perfil';
             
             alert('Gracias por registrarte! Tu perfil será revisado por un administrador.');
+            window.location.href = 'index.html';
         } else {
             alert('Error al registrar el usuario. Por favor, inténtalo de nuevo más tarde.');
         }
