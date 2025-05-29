@@ -59,34 +59,48 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // Obtener usuarios pendientes existentes
-        let usuariosPendientes = JSON.parse(localStorage.getItem('usuariosPendientes')) || [];
-        usuariosPendientes.push(usuario);
-        localStorage.setItem('usuariosPendientes', JSON.stringify(usuariosPendientes));
-
-        // Limpiar formulario
-        form.reset();
-        fotoLabel.classList.remove('selected');
-        fotoLabel.textContent = 'Añadir foto de perfil';
-
-        // Mostrar mensaje de éxito (pendiente de aprobación)
-        let prevMsg = document.querySelector('.registro-success');
-        if (prevMsg) prevMsg.remove();
-        const successMsg = document.createElement('div');
-        successMsg.className = 'registro-success';
-        successMsg.innerHTML = `
-            <p>¡Gracias por registrarte! Tu perfil está <b>pendiente de aprobación</b> por parte de un administrador.</p>
-            <p>Te contactaremos a través de ${contacto} cuando tu perfil sea aprobado.</p>
-        `;
-        form.parentNode.insertBefore(successMsg, form);
-
-        // Redirigir después de 3 segundos
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 3000);
-
-        // Restaurar el botón
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalBtnText;
+        // Enviar datos al backend
+        fetch('http://localhost:3001/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                nombre,
+                email: contacto, // Usamos el campo contacto como email
+                password: 'default', // Si no usas password, puedes omitirlo en el backend
+                objetivos,
+                info,
+                foto: foto ? foto.name : null
+            })
+        })
+        .then(async response => {
+            // Restaurar el botón
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalBtnText;
+            if (response.ok) {
+                form.reset();
+                fotoLabel.classList.remove('selected');
+                fotoLabel.textContent = 'Añadir foto de perfil';
+                let prevMsg = document.querySelector('.registro-success');
+                if (prevMsg) prevMsg.remove();
+                const successMsg = document.createElement('div');
+                successMsg.className = 'registro-success';
+                successMsg.innerHTML = `
+                    <p>¡Gracias por registrarte! Tu perfil está <b>pendiente de aprobación</b> por parte de un administrador.</p>
+                    <p>Te contactaremos a través de ${contacto} cuando tu perfil sea aprobado.</p>
+                `;
+                form.parentNode.insertBefore(successMsg, form);
+            } else {
+                const error = await response.json();
+                alert('Error al registrar: ' + (error.error || 'Intenta más tarde.'));
+            }
+        })
+        .catch(err => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalBtnText;
+            alert('Error de red al registrar usuario.');
+        });
     });
 });
 

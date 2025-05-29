@@ -42,54 +42,52 @@ document.addEventListener('DOMContentLoaded', () => {
     loadApprovedUsers();
 });
 
-// Función para cargar usuarios pendientes
+// Función para cargar usuarios pendientes desde el backend
 function loadPendingUsers() {
     const pendingUsersContainer = document.getElementById('pending-users');
-    
-    // Obtener usuarios pendientes de localStorage
-    const usuariosPendientes = JSON.parse(localStorage.getItem('usuariosPendientes')) || [];
-    
-    // Limpiar el contenedor
-    pendingUsersContainer.innerHTML = '';
-    
-    if (usuariosPendientes.length === 0) {
-        pendingUsersContainer.innerHTML = '<p>No hay solicitudes pendientes de aprobación.</p>';
-        return;
-    }
-    
-    usuariosPendientes.forEach(usuario => {
-        const userCard = createUserCard(usuario, true);
-        userCard.addEventListener('click', (e) => {
-            const action = e.target.dataset.action;
-            if (action === 'approve') {
-                approveUser(usuario.id);
-            } else if (action === 'reject') {
-                rejectUser(usuario.id);
+    pendingUsersContainer.innerHTML = '<p>Cargando...</p>';
+    fetch('http://localhost:3001/api/users')
+        .then(res => res.json())
+        .then(users => {
+            // Filtrar usuarios pendientes
+            const usuariosPendientes = users.filter(u => u.estado === 'pendiente' || u.aprobado === false);
+            pendingUsersContainer.innerHTML = '';
+            if (usuariosPendientes.length === 0) {
+                pendingUsersContainer.innerHTML = '<p>No hay solicitudes pendientes de aprobación.</p>';
+                return;
             }
+            usuariosPendientes.forEach(usuario => {
+                const userCard = createUserCard(usuario, true);
+                pendingUsersContainer.appendChild(userCard);
+            });
+        })
+        .catch(() => {
+            pendingUsersContainer.innerHTML = '<p>Error al cargar usuarios pendientes.</p>';
         });
-        pendingUsersContainer.appendChild(userCard);
-    });
 }
 
-// Función para cargar usuarios aprobados
+// Función para cargar usuarios aprobados desde el backend
 function loadApprovedUsers() {
     const approvedUsersContainer = document.getElementById('approved-users');
-    
-    // Obtener usuarios aprobados de localStorage
-    const usuariosAprobados = JSON.parse(localStorage.getItem('usuariosAprobados')) || [];
-    
-    // Limpiar el contenedor
-    approvedUsersContainer.innerHTML = '';
-    
-    if (usuariosAprobados.length === 0) {
-        approvedUsersContainer.innerHTML = '<p>No hay usuarios aprobados.</p>';
-        return;
-    }
-    
-    usuariosAprobados.forEach(user => {
-        const userCard = createUserCard(user, false);
-        approvedUsersContainer.appendChild(userCard);
-    });
+    approvedUsersContainer.innerHTML = '<p>Cargando...</p>';
+    fetch('http://localhost:3001/api/users')
+        .then(res => res.json())
+        .then(users => {
+            // Filtrar usuarios aprobados
+            const usuariosAprobados = users.filter(u => u.estado === 'aprobado' || u.aprobado === true);
+            approvedUsersContainer.innerHTML = '';
+            if (usuariosAprobados.length === 0) {
+                approvedUsersContainer.innerHTML = '<p>No hay usuarios aprobados.</p>';
+                return;
+            }
+            usuariosAprobados.forEach(user => {
+                const userCard = createUserCard(user, false);
+                approvedUsersContainer.appendChild(userCard);
+            });
+        })
+        .catch(() => {
+            approvedUsersContainer.innerHTML = '<p>Error al cargar usuarios aprobados.</p>';
+        });
 }
 
 // Función para crear una tarjeta de usuario
